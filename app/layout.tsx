@@ -1,11 +1,14 @@
+import '@/app/ui/global.css'
+import { interFont } from '@/app/ui/fonts'
+
 export default function RootLayout({
-  children,
+  children
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={`${interFont.className} antialiased`}>{children}</body>
     </html>
-  );
+  )
 }
