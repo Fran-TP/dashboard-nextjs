@@ -1,5 +1,5 @@
 import '@/app/ui/global.css'
-import { interFont } from '@/app/ui/fonts'
+import { poppinsFont } from '@/app/ui/fonts'
 
 export default function RootLayout({
   children
@@ -8,7 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${interFont.className} antialiased`}>{children}</body>
+      <body className={`${poppinsFont.className} antialiased`}>{children}</body>
     </html>
   )
 }

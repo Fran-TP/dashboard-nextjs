@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  filter: invert(100%);
-}
-
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
