@@ -4,6 +4,8 @@ import SideNav from '@/app/ui/dashboard/sidenav'
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 
+export const experimental_ppr = true
+
 interface LayoutProps {
   children: React.ReactNode
 }
