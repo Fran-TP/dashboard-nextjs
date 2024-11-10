@@ -2,7 +2,6 @@
 
 import type { CustomerField } from '@/app/lib/definitions'
 import Link from 'next/link'
-import { useActionState, useEffect, useState } from 'react'
 import {
   CheckIcon,
   ClockIcon,
@@ -10,40 +9,21 @@ import {
   UserCircleIcon
 } from '@heroicons/react/24/outline'
 import { Button } from '@/app/ui/button'
-import { createInvoice, type State } from '@/app/lib/actions'
+import { createInvoice } from '@/app/lib/actions'
 import ErrorMessage from '../forms/error-message'
 import clsx from 'clsx'
 import { Spin } from '../icons/spin'
+import { type FormState, useInvoiceForm } from '@/app/hooks/useInvoiceForm'
 
-const initialState: State = {
+const initialState: FormState = {
   message: null,
   errors: {},
   values: {}
 }
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
-  const [state, formAction, isPending] = useActionState(
-    createInvoice,
-    initialState
-  )
-  const [errors, setErrors] = useState<State['errors']>(state?.errors)
-  const [values, setValues] = useState<State['values']>(state?.values)
-
-  useEffect(() => {
-    setErrors(state?.errors)
-    setValues(state?.values)
-  }, [state])
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedUserId = event.target.value
-    setValues({ ...values, customerId: selectedUserId })
-
-    if (errors?.customerId) {
-      const updatedErrors = { ...errors, customerId: undefined }
-
-      setErrors(updatedErrors)
-    }
-  }
+  const { errors, values, formAction, handleChange, isPending } =
+    useInvoiceForm(createInvoice, initialState)
 
   return (
     <form action={formAction}>
@@ -60,7 +40,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
               value={values?.customerId}
-              onChange={handleSelectChange}
+              onChange={e => handleChange('customerId', e.target.value)}
               aria-describedby="customer-error"
             >
               <option value="" disabled>
@@ -92,11 +72,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 defaultValue={values?.amount}
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                onChange={() => {
-                  if (errors?.amount) {
-                    setErrors({ ...errors, amount: undefined })
-                  }
-                }}
+                onChange={e => handleChange('amount', e.target.value)}
                 aria-describedby="amount-error"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
@@ -120,11 +96,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   value="pending"
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                   defaultChecked={values?.status === 'pending'}
-                  onChange={() => {
-                    if (errors?.status) {
-                      setErrors({ ...errors, status: undefined })
-                    }
-                  }}
+                  onChange={e => handleChange('status', e.target.value)}
                   aria-describedby="status-error"
                 />
                 <label
@@ -141,11 +113,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   type="radio"
                   value="paid"
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                  onChange={() => {
-                    if (errors?.status) {
-                      setErrors({ ...errors, status: undefined })
-                    }
-                  }}
+                  onChange={e => handleChange('status', e.target.value)}
                   defaultChecked={values?.status === 'paid'}
                   aria-describedby="status-error"
                 />
