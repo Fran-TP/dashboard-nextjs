@@ -93,6 +93,14 @@ function PaginationNumber({
   )
 }
 
+const iconDirectionMap: Record<
+  'left' | 'right',
+  React.ComponentType<React.ComponentProps<'svg'>>
+> = {
+  left: ArrowLeftIcon,
+  right: ArrowRightIcon
+}
+
 function PaginationArrow({
   href,
   direction,
@@ -112,18 +120,15 @@ function PaginationArrow({
     }
   )
 
-  const icon =
-    direction === 'left' ? (
-      <ArrowLeftIcon className="w-4" />
-    ) : (
-      <ArrowRightIcon className="w-4" />
-    )
+  const Icon = iconDirectionMap[direction]
 
   return isDisabled ? (
-    <div className={className}>{icon}</div>
+    <div className={className}>
+      <Icon className="w-4" />
+    </div>
   ) : (
     <Link className={className} href={href}>
-      {icon}
+      <Icon className="w-4" />
     </Link>
   )
 }
