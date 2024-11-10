@@ -17,18 +17,17 @@ const Layout = ({ children }: LayoutProps) => {
         <SideNav />
       </div>
       <div className="flex flex-col flex-grow">
-        <div className="p-6 md:overflow-y-auto md:p-12">
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={pathname}
-              initial={{ y: 20 }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={pathname}
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.15 }}
+            className="p-6 md:overflow-y-auto h-full md:p-12"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )
