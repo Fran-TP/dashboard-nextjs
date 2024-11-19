@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import type { FormState } from '../hooks/useInvoiceForm'
+import { signIn, signOut } from '@/auth'
+import { AuthError } from 'next-auth'
 
 const FormSchema = z.object({
   id: z
@@ -79,10 +81,24 @@ export const createInvoice = async (
 
 const UpdateInvoice = FormSchema.omit({ id: true, date: true })
 
-export const updateInvoice = async (id: string, formData: FormData) => {
+export const updateInvoice = async (
+  id: string,
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> => {
   const rawFormData = Object.fromEntries(formData)
 
-  const { customerId, amount, status } = UpdateInvoice.parse(rawFormData)
+  const validatedFields = UpdateInvoice.safeParse(rawFormData)
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      values: rawFormData,
+      message: 'Missing fields. Failed to update invoice.'
+    }
+  }
+
+  const { customerId, amount, status } = validatedFields.data
 
   const amountInCents = Math.round(amount * 100)
 
@@ -94,7 +110,11 @@ export const updateInvoice = async (id: string, formData: FormData) => {
     `
     await sql`COMMIT`
   } catch (err) {
-    return { message: 'Database Error: Failed to Update Invoice.' }
+    await sql`ROLLBACK`
+
+    return {
+      message: 'Database Error: Failed to Create Invoice.'
+    }
   }
 
   revalidatePath('/dashboard/invoices')
@@ -115,4 +135,27 @@ export async function deleteInvoice(id: string) {
 
     return { message: 'Database Error: Failed to Delete Invoice' }
   }
+}
+
+export async function authenticate(
+  _prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    await signIn('credentials', formData)
+  } catch (error) {
+    if (error instanceof AuthError) {
+      const errorsType: Partial<Record<typeof error.type, string>> = {
+        CredentialsSignin: 'Invalid credentials.'
+      }
+
+      return errorsType[error.type] ?? 'Something went wrong.'
+    }
+
+    throw error
+  }
+}
+
+export async function logoutUser() {
+  await signOut()
 }
