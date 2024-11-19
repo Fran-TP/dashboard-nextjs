@@ -1,3 +1,5 @@
+'use client'
+
 import type { CustomerField, InvoiceForm } from '@/app/lib/definitions'
 import {
   CheckIcon,
@@ -8,6 +10,16 @@ import {
 import Link from 'next/link'
 import { Button } from '@/app/ui/button'
 import { updateInvoice } from '@/app/lib/actions'
+import { type FormState, useInvoiceForm } from '@/app/hooks/useInvoiceForm'
+import { Spin } from '../icons/spin'
+import clsx from 'clsx'
+import ErrorMessage from '../forms/error-message'
+
+const initialState: FormState = {
+  message: null,
+  errors: {},
+  values: {}
+}
 
 export default function EditInvoiceForm({
   invoice,
@@ -19,8 +31,11 @@ export default function EditInvoiceForm({
   const { id } = invoice
   const updateInvoiceWithId = updateInvoice.bind(null, id)
 
+  const { errors, values, formAction, handleChange, isPending } =
+    useInvoiceForm(updateInvoiceWithId, initialState)
+
   return (
-    <form action={updateInvoiceWithId}>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -33,6 +48,7 @@ export default function EditInvoiceForm({
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue={invoice.customer_id}
+              aria-describedby="costumer-error"
             >
               <option value="" disabled>
                 Select a customer
@@ -45,6 +61,7 @@ export default function EditInvoiceForm({
             </select>
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
+          <ErrorMessage id="costumer-error" message={errors?.customerId} />
         </div>
 
         {/* Invoice Amount */}
@@ -66,6 +83,7 @@ export default function EditInvoiceForm({
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
+          <ErrorMessage message={errors?.amount} />
         </div>
 
         {/* Invoice Status */}
@@ -99,6 +117,7 @@ export default function EditInvoiceForm({
                   value="paid"
                   defaultChecked={invoice.status === 'paid'}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                  aria-activedescendant="status-error"
                 />
                 <label
                   htmlFor="paid"
@@ -109,6 +128,7 @@ export default function EditInvoiceForm({
               </div>
             </div>
           </div>
+          <ErrorMessage id="status-error" message={errors?.status} />
         </fieldset>
       </div>
       <div className="mt-6 flex justify-end gap-4">
@@ -118,7 +138,22 @@ export default function EditInvoiceForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Edit Invoice</Button>
+        <Button
+          type="submit"
+          className={clsx('w-36 gap-1', {
+            'cursor-not-allowed': isPending
+          })}
+          disabled={isPending}
+        >
+          {isPending ? (
+            <>
+              <Spin />
+              Saving...
+            </>
+          ) : (
+            'Save Changes'
+          )}
+        </Button>
       </div>
     </form>
   )
