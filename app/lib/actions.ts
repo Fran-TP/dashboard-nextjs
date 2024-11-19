@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import type { FormState } from '../hooks/useInvoiceForm'
-import { signIn, signOut } from '@/auth'
-import { AuthError } from 'next-auth'
+// import { signIn, signOut } from '@/auth'
+// import { AuthError } from 'next-auth'
 
 const FormSchema = z.object({
   id: z
@@ -137,25 +137,25 @@ export async function deleteInvoice(id: string) {
   }
 }
 
-export async function authenticate(
-  _prevState: string | undefined,
-  formData: FormData
-) {
-  try {
-    await signIn('credentials', formData)
-  } catch (error) {
-    if (error instanceof AuthError) {
-      const errorsType: Partial<Record<typeof error.type, string>> = {
-        CredentialsSignin: 'Invalid credentials.'
-      }
+// export async function authenticate(
+//   _prevState: string | undefined,
+//   formData: FormData
+// ) {
+//   try {
+//     await signIn('credentials', formData)
+//   } catch (error) {
+//     if (error instanceof AuthError) {
+//       const errorsType: Partial<Record<typeof error.type, string>> = {
+//         CredentialsSignin: 'Invalid credentials.'
+//       }
 
-      return errorsType[error.type] ?? 'Something went wrong.'
-    }
+//       return errorsType[error.type] ?? 'Something went wrong.'
+//     }
 
-    throw error
-  }
-}
+//     throw error
+//   }
+// }
 
-export async function logoutUser() {
-  await signOut()
-}
+// export async function logoutUser() {
+//   await signOut()
+// }
