@@ -7,20 +7,11 @@ import type {
   LatestInvoiceRaw,
   Revenue
 } from './definitions'
-import { formatCurrency, sleep } from './utils'
+import { formatCurrency } from './utils'
 
 export async function fetchRevenue() {
   try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...')
-
-    await sleep(3000)
-
     const data = await sql<Revenue>`SELECT * FROM revenue`
-
-    // console.log('Data fetch completed after 3 seconds.')
 
     return data.rows
   } catch (error) {
@@ -31,8 +22,6 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    await sleep(5000)
-
     const data = await sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
